@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { FocusSessionModule } from './focus-session/focus-session.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { PlansModule } from './plans/plans.module';
 
 @Module({
   imports: [
@@ -22,12 +25,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: config.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: true, // set to false in production
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
       }),
       inject: [ConfigService],
     }),
     AuthModule,
+    FocusSessionModule,
+    SubscriptionsModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

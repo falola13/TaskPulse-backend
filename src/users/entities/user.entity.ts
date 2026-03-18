@@ -1,14 +1,22 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Subscription } from 'src/subscriptions/entities/subscription.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+export enum Role {
+  ADMIN = 'admin',
+  USER = 'user'
+}
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role
 
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column()
@@ -16,4 +24,16 @@ export class User {
 
   @Column()
   lastName: string;
+
+  @Column({ nullable: true })
+  imageUrl?: string;
+
+  @Column({ nullable: true, select: false })
+  twoFactorSecret?: string;
+
+  @Column({ default: false })
+  isTwoFAEnabled: boolean;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user, { cascade: true })
+  subscriptions: Subscription[]
 }

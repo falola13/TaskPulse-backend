@@ -5,6 +5,11 @@ import { AuthService } from './auth.service';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { GoogleStrategy } from './google.strategy';
+import { GithubStrategy } from './github.strategy';
+import { TwoFAService } from './2fa.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 
 @Module({
   imports: [
@@ -21,8 +26,15 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([User]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    GithubStrategy,
+    TwoFAService,
+  ],
 })
-export class AuthModule {}
+export class AuthModule { }

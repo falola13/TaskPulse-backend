@@ -149,7 +149,8 @@ export class AuthController {
     });
     // if (body.redirect_uri) {
     return res.redirect(
-      'http://localhost:3000/dashboard' +
+      window.location.origin +
+        '/dashboard' +
         '?token=' +
         token?.token +
         '&message=' +
@@ -190,7 +191,8 @@ export class AuthController {
     });
     // if (body.redirect_uri) {
     return res.redirect(
-      'http://localhost:3000/dashboard' +
+      window.location.origin +
+        '/dashboard' +
         '?token=' +
         token?.token +
         '&message=' +

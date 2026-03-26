@@ -27,19 +27,18 @@ import { StreaksModule } from './modules/streaks/streaks.module';
           config.get<string>('NODE_ENV') === 'production';
 
         return {
-        type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        // Support both DB_NAME and DB_DATABASE env keys.
-        database:
-          config.get<string>('DB_NAME') ?? config.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
-        synchronize: true, // set to false in production
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        ssl: shouldUseSsl ? { rejectUnauthorized: false } : false,
-      };
+          type: 'postgres',
+          host: config.get<string>('DB_HOST'),
+          port: config.get<number>('DB_PORT'),
+          username: config.get<string>('DB_USERNAME'),
+          password: config.get<string>('DB_PASSWORD'),
+          // Support both DB_NAME and DB_DATABASE env keys.
+          database: config.get<string>('DB_NAME'),
+          autoLoadEntities: true,
+          synchronize: true, // set to false in production
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          ssl: shouldUseSsl ? { rejectUnauthorized: false } : false,
+        };
       },
       inject: [ConfigService],
     }),

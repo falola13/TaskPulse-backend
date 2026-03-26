@@ -12,7 +12,7 @@ import { Repository } from 'typeorm';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
   async createUser(data: CreateUserDto): Promise<User> {
     const existingUser = await this.userRepository.exists({
       where: { email: data.email },
@@ -26,9 +26,13 @@ export class UsersService {
     return await this.userRepository.save(newUser);
   }
 
-  async findUserByEmail(email: string, showPassword?: boolean): Promise<User | null> {
+  async findUserByEmail(
+    email: string,
+    showPassword?: boolean,
+  ): Promise<User | null> {
     return this.userRepository.findOne({
-      where: { email }, select: {
+      where: { email },
+      select: {
         email: true,
         firstName: true,
         lastName: true,
@@ -36,8 +40,8 @@ export class UsersService {
         isTwoFAEnabled: true,
         role: true,
         imageUrl: true,
-        password: showPassword
-      }
+        password: showPassword,
+      },
     });
   }
   async findUserById(id: string): Promise<User | null> {
@@ -70,9 +74,9 @@ export class UsersService {
   async getAllUsers(query: any) {
     const limit = Number(query.limit) || 10;
     const page = Number(query.page) || 1;
-    const search = query.search || ''
+    const search = query.search || '';
 
-    const qb = await this.userRepository.createQueryBuilder('user')
+    const qb = this.userRepository.createQueryBuilder('user');
 
     qb.select([
       'user.id',
@@ -82,21 +86,17 @@ export class UsersService {
       'user.role',
       'user.imageUrl',
       'user.isTwoFAEnabled',
-    ])
-
+    ]);
 
     if (search) {
       qb.where(
         'user.email ILIKE :search OR user.firstName ILIKE :search OR user.lastName ILIKE :search',
-        { search: `%${search}%` }
+        { search: `%${search}%` },
       );
     }
-    qb.skip((page - 1) * limit).take(limit)
+    qb.skip((page - 1) * limit).take(limit);
 
-    const [users, total] = await qb.getManyAndCount()
-
-
-
+    const [users, total] = await qb.getManyAndCount();
 
     return {
       message: users.length ? 'Users fetched successfully!!' : 'No users found',
@@ -106,7 +106,7 @@ export class UsersService {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-      }
-    }
+      },
+    };
   }
 }

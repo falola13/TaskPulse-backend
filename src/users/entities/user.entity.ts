@@ -1,9 +1,10 @@
 import { Subscription } from 'src/subscriptions/entities/subscription.entity';
+import { Task } from 'src/tasks/entities/tasks.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum Role {
   ADMIN = 'admin',
-  USER = 'user'
+  USER = 'user',
 }
 @Entity()
 export class User {
@@ -11,7 +12,7 @@ export class User {
   id: string;
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
-  role: Role
+  role: Role;
 
   @Column({ unique: true })
   email: string;
@@ -34,6 +35,11 @@ export class User {
   @Column({ default: false })
   isTwoFAEnabled: boolean;
 
-  @OneToMany(() => Subscription, (subscription) => subscription.user, { cascade: true })
-  subscriptions: Subscription[]
+  @OneToMany(() => Subscription, (subscription) => subscription.user, {
+    cascade: true,
+  })
+  subscriptions: Subscription[];
+
+  @OneToMany(() => Task, (task) => task.userId, { cascade: true })
+  tasks: Task[];
 }

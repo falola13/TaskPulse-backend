@@ -11,4 +11,3 @@ export class PlansResponseDto {
   @ApiProperty({ example: 'Plans retrieved successfully' })
   message: string;
 }
-

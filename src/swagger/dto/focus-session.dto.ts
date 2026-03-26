@@ -23,7 +23,6 @@ export class FocusSessionDto {
   @ApiProperty({ example: 1500 })
   expectedDuration: number;
 
-  @ApiPropertyOptional({ example: 123 })
-  taskId?: number;
+  @ApiPropertyOptional({ example: '7f2c7c0b-8a8a-4f3f-9f0b-6d6d6a1a2b3c' })
+  taskId?: string;
 }
-

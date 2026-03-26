@@ -17,8 +17,22 @@ import { User } from 'src/users/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './decorator/get-user.decorator';
 import { TwoFaGuard } from './guard/twofa.guard';
-import { ApiBody, ApiCookieAuth, ApiOkResponse, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthLoginResponseDto, AuthProfileResponseDto, AuthRegisterResponseDto, LogoutResponseDto, TwoFactorActionResponseDto, TwoFactorSecretResponseDto } from 'src/swagger/dto/auth-response.dto';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  AuthLoginResponseDto,
+  AuthProfileResponseDto,
+  AuthRegisterResponseDto,
+  LogoutResponseDto,
+  TwoFactorActionResponseDto,
+  TwoFactorSecretResponseDto,
+} from 'src/swagger/dto/auth-response.dto';
 import { TwoFactorCodeDto } from 'src/swagger/dto/two-factor-code.dto';
 
 @Controller('auth')
@@ -27,7 +41,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UsersService,
-  ) { }
+  ) {}
 
   @Post('register')
   @ApiOkResponse({ type: AuthRegisterResponseDto })
@@ -115,7 +129,10 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  @ApiResponse({ status: 302, description: 'Redirect back to frontend after Google OAuth' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirect back to frontend after Google OAuth',
+  })
   async googleAuthCallback(
     @Req() req: any,
     @Res({ passthrough: true }) res: any,
@@ -133,10 +150,10 @@ export class AuthController {
     // if (body.redirect_uri) {
     return res.redirect(
       'http://localhost:3000/dashboard' +
-      '?token=' +
-      token?.token +
-      '&message=' +
-      token?.message,
+        '?token=' +
+        token?.token +
+        '&message=' +
+        token?.message,
     );
   }
   @Get('github')
@@ -152,7 +169,10 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  @ApiResponse({ status: 302, description: 'Redirect back to frontend after GitHub OAuth' })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirect back to frontend after GitHub OAuth',
+  })
   async githubCallback(
     @Req() req: any,
     @Res({ passthrough: true }) res: any,
@@ -171,10 +191,10 @@ export class AuthController {
     // if (body.redirect_uri) {
     return res.redirect(
       'http://localhost:3000/dashboard' +
-      '?token=' +
-      token?.token +
-      '&message=' +
-      token?.message,
+        '?token=' +
+        token?.token +
+        '&message=' +
+        token?.message,
     );
   }
 
@@ -191,7 +211,10 @@ export class AuthController {
   @ApiCookieAuth('access_token')
   @ApiBody({ type: TwoFactorCodeDto })
   @ApiOkResponse({ type: TwoFactorActionResponseDto })
-  async enableTwoFactorAuth(@GetUser() user: User, @Body() dto: TwoFactorCodeDto) {
+  async enableTwoFactorAuth(
+    @GetUser() user: User,
+    @Body() dto: TwoFactorCodeDto,
+  ) {
     return await this.authService.enableTwoFactorAuth(user, dto.code);
   }
 
@@ -213,8 +236,10 @@ export class AuthController {
     @Body() dto: TwoFactorCodeDto,
     @Res({ passthrough: true }) res: any,
   ) {
-    return await this.authService.verifyTwoFactorAuthCode(req.user, dto.code, res);
+    return await this.authService.verifyTwoFactorAuthCode(
+      req.user,
+      dto.code,
+      res,
+    );
   }
-
-
 }

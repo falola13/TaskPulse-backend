@@ -11,14 +11,14 @@ import { GetAllUsersResponseDto } from 'src/swagger/dto/users-response.dto';
 @Controller('users')
 @ApiTags('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
-    @Get('all')
-    @UseGuards(AuthGuard('jwt'), RoleGuard)
-    @Roles(Role.ADMIN)
-    @ApiCookieAuth('access_token')
-    @ApiOkResponse({ type: GetAllUsersResponseDto })
-    async getAllUsers(@Query() query: GetAllUsersQueryDto) {
-        return await this.usersService.getAllUsers(query)
-    }
+  @Get('all')
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Roles(Role.ADMIN)
+  @ApiCookieAuth('access_token')
+  @ApiOkResponse({ type: GetAllUsersResponseDto })
+  async getAllUsers(@Query() query: GetAllUsersQueryDto) {
+    return await this.usersService.getAllUsers(query);
+  }
 }

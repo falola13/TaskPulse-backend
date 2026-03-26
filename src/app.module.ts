@@ -7,6 +7,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FocusSessionModule } from './focus-session/focus-session.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { PlansModule } from './plans/plans.module';
+import { TasksModule } from './tasks/tasks.module';
+import { GoalsModule } from './modules/goals/goals.module';
+import { StreaksModule } from './modules/streaks/streaks.module';
 
 @Module({
   imports: [
@@ -33,8 +36,11 @@ import { PlansModule } from './plans/plans.module';
     FocusSessionModule,
     SubscriptionsModule,
     PlansModule,
+    TasksModule,
+    GoalsModule,
+    StreaksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

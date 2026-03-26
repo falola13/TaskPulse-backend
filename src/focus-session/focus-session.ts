@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Task } from 'src/tasks/entities/tasks.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum SessionType {
   PULSE = 'pulse',
@@ -22,7 +29,7 @@ export class FocusSession {
   @Column({ type: 'timestamptz' })
   startTime: Date;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', nullable: true })
   endTime: Date;
 
   @Column({ type: 'int', nullable: true })
@@ -31,6 +38,10 @@ export class FocusSession {
   @Column({ type: 'int', nullable: true })
   expectedDuration: number;
 
-  @Column({ nullable: true })
-  taskId?: number;
+  @Column({ type: 'uuid', nullable: true })
+  taskId?: string;
+
+  @ManyToOne(() => Task, (task) => task.session, { nullable: true })
+  @JoinColumn({ name: 'taskId' })
+  task: Task;
 }

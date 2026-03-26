@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class GetAllUsersQueryDto {
+export class QueryDto {
   @ApiPropertyOptional({ example: '10', description: 'Max users per page' })
   @IsOptional()
   @IsString()

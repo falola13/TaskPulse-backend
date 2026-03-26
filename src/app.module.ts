@@ -19,17 +19,28 @@ import { StreaksModule } from './modules/streaks/streaks.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (config: ConfigService) => ({
+      useFactory: async (config: ConfigService) => {
+        // Neon/managed Postgres typically requires SSL in production.
+        // Toggle with DB_SSL=true, or it auto-enables when NODE_ENV=production.
+        const shouldUseSsl =
+          config.get<string>('DB_SSL') === 'true' ||
+          config.get<string>('NODE_ENV') === 'production';
+
+        return {
         type: 'postgres',
         host: config.get<string>('DB_HOST'),
         port: config.get<number>('DB_PORT'),
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        // Support both DB_NAME and DB_DATABASE env keys.
+        database:
+          config.get<string>('DB_NAME') ?? config.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
         synchronize: true, // set to false in production
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      }),
+        ssl: shouldUseSsl ? { rejectUnauthorized: false } : false,
+      };
+      },
       inject: [ConfigService],
     }),
     AuthModule,

@@ -156,7 +156,10 @@ export class GoalsService {
       order: { startTime: 'ASC' },
     });
 
-    const map = new Map<string, { focusedMinutes: number; sessionsCount: number }>();
+    const map = new Map<
+      string,
+      { focusedMinutes: number; sessionsCount: number }
+    >();
     for (let i = 0; i < 7; i++) {
       const d = new Date(startOfWeek);
       d.setDate(startOfWeek.getDate() + i);

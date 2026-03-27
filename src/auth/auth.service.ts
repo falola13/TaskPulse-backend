@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { Role, User } from 'src/users/entities/user.entity';
 import { TwoFAService } from './2fa.service';
+import { buildAuthCookieOptions } from 'src/common/utils/cookie-options';
 
 @Injectable()
 export class AuthService {
@@ -19,21 +20,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly twoFAService: TwoFAService,
-  ) { }
-
-  private getCookieOptions(maxAge: number) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const cookieDomain = process.env.COOKIE_DOMAIN;
-
-    return {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
-      maxAge,
-      path: '/',
-      ...(cookieDomain ? { domain: cookieDomain } : {}),
-    };
-  }
+  ) {}
 
   async register(createUserDto: CreateUserDto) {
     // encrypt the user password here
@@ -129,8 +116,12 @@ export class AuthService {
     }
     const payload = { id: existingUser.id, email: existingUser.email };
     const token = this.generateJwtToken(payload);
-    res.cookie('access_token', token, this.getCookieOptions(24 * 60 * 60 * 1000));
-    res.clearCookie('pending_user', this.getCookieOptions(0));
+    res.cookie(
+      'access_token',
+      token,
+      buildAuthCookieOptions(24 * 60 * 60 * 1000),
+    );
+    res.clearCookie('pending_user', buildAuthCookieOptions(0));
     return {
       message: '2FA verification successful',
       success: true,
@@ -180,7 +171,7 @@ export class AuthService {
     firstName: string;
     lastName: string;
     isTwoFAEnabled: boolean;
-    role: Role
+    role: Role;
   } {
     return {
       id: data.id,
@@ -188,7 +179,7 @@ export class AuthService {
       firstName: data.firstName,
       lastName: data.lastName,
       isTwoFAEnabled: data.isTwoFAEnabled,
-      role: data.role
+      role: data.role,
     };
   }
 }

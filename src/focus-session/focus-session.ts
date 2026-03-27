@@ -2,6 +2,7 @@ import { Task } from 'src/tasks/entities/tasks.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -13,6 +14,19 @@ export enum SessionType {
   LONG_BREAK = 'long_break',
 }
 @Entity()
+@Index('IDX_focus_session_user_end_start', ['userId', 'endTime', 'startTime'])
+@Index('IDX_focus_session_user_type_end_start', [
+  'userId',
+  'type',
+  'endTime',
+  'startTime',
+])
+@Index('IDX_focus_session_user_task_type_end', [
+  'userId',
+  'taskId',
+  'type',
+  'endTime',
+])
 export class FocusSession {
   @PrimaryGeneratedColumn()
   id: number;

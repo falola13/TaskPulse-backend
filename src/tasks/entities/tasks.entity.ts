@@ -26,6 +26,9 @@ export enum TaskStatus {
 }
 
 @Entity()
+@Index('IDX_task_user_created', ['userId', 'createdAt'])
+@Index('IDX_task_user_status_created', ['userId', 'status', 'createdAt'])
+@Index('IDX_task_user_priority_created', ['userId', 'priority', 'createdAt'])
 export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;

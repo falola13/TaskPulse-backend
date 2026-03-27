@@ -6,8 +6,10 @@ import { DataSource } from 'typeorm';
 import { seedPlans } from './plans/plans.seed';
 import { setupSwagger } from './swagger/swagger.setup';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set('trust proxy', 1);
 
   app.setGlobalPrefix('/api/v1');
 

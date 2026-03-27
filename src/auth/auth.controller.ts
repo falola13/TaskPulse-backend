@@ -34,6 +34,7 @@ import {
   TwoFactorSecretResponseDto,
 } from 'src/swagger/dto/auth-response.dto';
 import { TwoFactorCodeDto } from 'src/swagger/dto/two-factor-code.dto';
+import { buildAuthCookieOptions } from 'src/common/utils/cookie-options';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -42,20 +43,6 @@ export class AuthController {
     private authService: AuthService,
     private userService: UsersService,
   ) {}
-
-  private getCookieOptions(maxAge: number) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const cookieDomain = process.env.COOKIE_DOMAIN;
-
-    return {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
-      maxAge,
-      path: '/',
-      ...(cookieDomain ? { domain: cookieDomain } : {}),
-    };
-  }
 
   @Post('register')
   @ApiOkResponse({ type: AuthRegisterResponseDto })
@@ -72,13 +59,21 @@ export class AuthController {
   ) {
     const token = await this.authService.login(loginDto);
     if (token.data?.isTwoFAEnabled) {
-      res.cookie('pending_user', token.data.id, this.getCookieOptions(5 * 60 * 1000));
+      res.cookie(
+        'pending_user',
+        token.data.id,
+        buildAuthCookieOptions(5 * 60 * 1000),
+      );
       return {
         message: '2FA is enabled, please verify your code',
         twoFaRequired: true,
       };
     }
-    res.cookie('access_token', token.token, this.getCookieOptions(24 * 60 * 60 * 1000));
+    res.cookie(
+      'access_token',
+      token.token,
+      buildAuthCookieOptions(24 * 60 * 60 * 1000),
+    );
     return {
       message: 'Login successful',
       data: token.data,
@@ -116,7 +111,7 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: any): Promise<{
     message: string;
   }> {
-    await res.clearCookie('access_token', this.getCookieOptions(0));
+    await res.clearCookie('access_token', buildAuthCookieOptions(0));
     return {
       message: 'Logout successful',
     };
@@ -145,7 +140,7 @@ export class AuthController {
     res.cookie(
       'access_token',
       tokenData?.token,
-      this.getCookieOptions(24 * 60 * 60 * 1000),
+      buildAuthCookieOptions(24 * 60 * 60 * 1000),
     );
     // if (body.redirect_uri) {
     const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
@@ -181,7 +176,7 @@ export class AuthController {
     res.cookie(
       'access_token',
       tokenData?.token,
-      this.getCookieOptions(24 * 60 * 60 * 1000),
+      buildAuthCookieOptions(24 * 60 * 60 * 1000),
     );
     const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
 

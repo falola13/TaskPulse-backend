@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private ConfigService: ConfigService,
     private usersService: UsersService,
-    @InjectRepository(User) private readonly userRepository: Repository<User>
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {
     const jwtSecret = ConfigService.get<string>('JWT_SECRET');
     if (!jwtSecret) {
@@ -34,7 +34,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.userRepository.findOne({ where: { id: payload.id }, select: { email: true, role: true, id: true, firstName: true, lastName: true, imageUrl: true, isTwoFAEnabled: true } },);
+    const user = await this.userRepository.findOne({
+      where: { id: payload.id },
+      select: {
+        email: true,
+        role: true,
+        id: true,
+        firstName: true,
+        lastName: true,
+        imageUrl: true,
+        isTwoFAEnabled: true,
+      },
+    });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }

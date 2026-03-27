@@ -20,6 +20,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly twoFAService: TwoFAService,
   ) { }
+
+  private getCookieOptions(maxAge: number) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieDomain = process.env.COOKIE_DOMAIN;
+
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
+      maxAge,
+      path: '/',
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
+    };
+  }
+
   async register(createUserDto: CreateUserDto) {
     // encrypt the user password here
     // For example, using bcrypt
@@ -114,14 +129,8 @@ export class AuthService {
     }
     const payload = { id: existingUser.id, email: existingUser.email };
     const token = this.generateJwtToken(payload);
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-      path: '/',
-    });
-    res.clearCookie('pending_user');
+    res.cookie('access_token', token, this.getCookieOptions(24 * 60 * 60 * 1000));
+    res.clearCookie('pending_user', this.getCookieOptions(0));
     return {
       message: '2FA verification successful',
       success: true,

@@ -43,6 +43,20 @@ export class AuthController {
     private userService: UsersService,
   ) {}
 
+  private getCookieOptions(maxAge: number) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieDomain = process.env.COOKIE_DOMAIN;
+
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: (isProduction ? 'none' : 'lax') as 'none' | 'lax',
+      maxAge,
+      path: '/',
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
+    };
+  }
+
   @Post('register')
   @ApiOkResponse({ type: AuthRegisterResponseDto })
   async register(@Body() createUserDto: CreateUserDto) {
@@ -58,25 +72,13 @@ export class AuthController {
   ) {
     const token = await this.authService.login(loginDto);
     if (token.data?.isTwoFAEnabled) {
-      res.cookie('pending_user', token.data.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 5 * 60 * 60 * 1000, //5 minutes
-        sameSite: 'lax',
-        path: '/',
-      });
+      res.cookie('pending_user', token.data.id, this.getCookieOptions(5 * 60 * 1000));
       return {
         message: '2FA is enabled, please verify your code',
         twoFaRequired: true,
       };
     }
-    res.cookie('access_token', token.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-      path: '/',
-    });
+    res.cookie('access_token', token.token, this.getCookieOptions(24 * 60 * 60 * 1000));
     return {
       message: 'Login successful',
       data: token.data,
@@ -114,7 +116,7 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) res: any): Promise<{
     message: string;
   }> {
-    await res.clearCookie('access_token');
+    await res.clearCookie('access_token', this.getCookieOptions(0));
     return {
       message: 'Logout successful',
     };
@@ -140,13 +142,11 @@ export class AuthController {
     // Handles the callback from Google OAuth
     const user = req.user;
     const tokenData = await this.authService.socialLogin(user);
-    res.cookie('access_token', tokenData?.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-      path: '/',
-    });
+    res.cookie(
+      'access_token',
+      tokenData?.token,
+      this.getCookieOptions(24 * 60 * 60 * 1000),
+    );
     // if (body.redirect_uri) {
     const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
     return res.redirect(
@@ -178,13 +178,11 @@ export class AuthController {
 
     const user = req.user;
     const tokenData = await this.authService.socialLogin(user);
-    res.cookie('access_token', tokenData?.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-      path: '/',
-    });
+    res.cookie(
+      'access_token',
+      tokenData?.token,
+      this.getCookieOptions(24 * 60 * 60 * 1000),
+    );
     const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
 
     return res.redirect(

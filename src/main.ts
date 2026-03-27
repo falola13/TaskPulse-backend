@@ -7,6 +7,17 @@ import { seedPlans } from './plans/plans.seed';
 import { setupSwagger } from './swagger/swagger.setup';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
+
+const parseAllowedOrigins = (): string[] => {
+  const raw = process.env.CORS_ORIGIN;
+  if (!raw) return ['http://localhost:3000'];
+
+  return raw
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+};
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.set('trust proxy', 1);
@@ -23,8 +34,14 @@ async function bootstrap() {
   const dataSource = app.get(DataSource);
   await seedPlans(dataSource);
 
+  const allowedOrigins = parseAllowedOrigins();
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      // Allow non-browser requests (curl, server-to-server).
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

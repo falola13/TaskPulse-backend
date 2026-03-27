@@ -44,6 +44,14 @@ export class AuthController {
     private userService: UsersService,
   ) {}
 
+  private getFrontendRedirectBase(): string {
+    const configured = process.env.FRONTEND_URL || process.env.CORS_ORIGIN;
+    if (!configured) return 'http://localhost:3000';
+
+    const first = configured.split(',')[0]?.trim();
+    return first || 'http://localhost:3000';
+  }
+
   @Post('register')
   @ApiOkResponse({ type: AuthRegisterResponseDto })
   async register(@Body() createUserDto: CreateUserDto) {
@@ -143,7 +151,7 @@ export class AuthController {
       buildAuthCookieOptions(24 * 60 * 60 * 1000),
     );
     // if (body.redirect_uri) {
-    const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const frontendUrl = this.getFrontendRedirectBase();
     return res.redirect(
       `${frontendUrl}/dashboard?token=${tokenData?.token}&message=${encodeURIComponent(tokenData?.message)}`,
     );
@@ -178,7 +186,7 @@ export class AuthController {
       tokenData?.token,
       buildAuthCookieOptions(24 * 60 * 60 * 1000),
     );
-    const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
+    const frontendUrl = this.getFrontendRedirectBase();
 
     return res.redirect(
       `${frontendUrl}/dashboard?token=${tokenData?.token}&message=${encodeURIComponent(tokenData?.message)}`,

@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { DataSource } from 'typeorm';
 import { seedPlans } from './plans/plans.seed';
 import { setupSwagger } from './swagger/swagger.setup';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -25,6 +26,8 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   setupSwagger(app);
 

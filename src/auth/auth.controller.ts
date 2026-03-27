@@ -91,7 +91,7 @@ export class AuthController {
   async profile(@Req() req: any) {
     const user = await this.userService.findUserByEmail(req.user.email);
     if (!user) {
-      throw new Error('User profile not found');
+      throw new NotFoundException('User profile not found');
     }
     return {
       success: true,
@@ -139,8 +139,8 @@ export class AuthController {
   ): Promise<{ message: string; token: string }> {
     // Handles the callback from Google OAuth
     const user = req.user;
-    const token = await this.authService.socialLogin(user);
-    res.cookie('access_token', token?.token, {
+    const tokenData = await this.authService.socialLogin(user);
+    res.cookie('access_token', tokenData?.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
@@ -148,13 +148,9 @@ export class AuthController {
       path: '/',
     });
     // if (body.redirect_uri) {
+    const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
     return res.redirect(
-      window.location.origin +
-        '/dashboard' +
-        '?token=' +
-        token?.token +
-        '&message=' +
-        token?.message,
+      `${frontendUrl}/dashboard?token=${tokenData?.token}&message=${encodeURIComponent(tokenData?.message)}`,
     );
   }
   @Get('github')
@@ -181,22 +177,18 @@ export class AuthController {
     // Handles the callback from Google OAuth
 
     const user = req.user;
-    const token = await this.authService.socialLogin(user);
-    res.cookie('access_token', token?.token, {
+    const tokenData = await this.authService.socialLogin(user);
+    res.cookie('access_token', tokenData?.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 24 * 60 * 60 * 1000,
       sameSite: 'lax',
       path: '/',
     });
-    // if (body.redirect_uri) {
+    const frontendUrl = process.env.CORS_ORIGIN || 'http://localhost:3000';
+
     return res.redirect(
-      window.location.origin +
-        '/dashboard' +
-        '?token=' +
-        token?.token +
-        '&message=' +
-        token?.message,
+      `${frontendUrl}/dashboard?token=${tokenData?.token}&message=${encodeURIComponent(tokenData?.message)}`,
     );
   }
 
